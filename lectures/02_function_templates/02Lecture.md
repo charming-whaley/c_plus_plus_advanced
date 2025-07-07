@@ -1,6 +1,8 @@
 # Лекция 2. Шаблоны функций
 ## Введение
 
+<h4>Вводные слова</h4>
+
 <p>Рассмотрим следующую функцию:</p>
 
 ```c++
@@ -50,6 +52,9 @@ T nth_power(T x, unsigned n) {
 <li>Добавим специальный default_id_trait</li>
 <li>Вынесем основную часть функции - возведение в степень - и определим требования для типа T</li>
 </ul>
+
+<h4>Меняем функцию</h4>
+
 <p>Рассмотрим второй вариант:</p>
 
 ```c++
@@ -72,4 +77,35 @@ unsigned nth_power(unsigned x, unsigned n) {
         return x;
     return do_nth_power<unsigned>(x, 1u, n);
 }
+```
+
+<p>Вариант рабочий. Однако, есть один нюанс. А как точно понять, что T - копируемый тип (таким обазом, что мы его можем перемножать)? Для проверки этого добавим concept к нашей функции через requires:</p>
+
+```c++
+template <typename T> concept multiplicative = requires(T t) {
+    { t *= t } -> std::convertible_to<T>;
+};
+
+template<typename T>
+T do_nth_power(T x, T result, unsigned n) 
+requires multiplicative<T> && std::copyable<T>
+```
+
+<h4>class vs typename</h4>
+
+<p>Достаточно спорный момент. Можно много глаголить, но лучше всего специализировать typename стандартными методами STL (например, std::intergral)</p>
+
+<h4>Инстанцирование</h4>
+
+<p>Инстанцированием мы называем процесс порождения экземпляра специализации</p>
+
+```c++
+template<typename T>
+T max(T x, T y) {
+    return x > y ? x : y;
+}
+
+...
+
+max<int>(2, 3)
 ```

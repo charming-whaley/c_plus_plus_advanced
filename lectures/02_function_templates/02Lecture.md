@@ -184,4 +184,48 @@ template<int N, int* PN, int& RN, MoreComplex M> int buz() {
 
 ## 2.5 Вывод типов
 
+<p>Для параметров, являющихся типами, работает вывод типов</p>
 
+```c++
+int x = max(1, 2); // -> int max<int>(int, int);
+```
+
+<p>Шаблонный тип аргумента может быть уточнен ссылкой или указателем и cv-квалификатором:</p>
+
+```c++
+template<typename T> T max(const T& x, const T& y);
+int a = max(2, 3); // -> int max<int>(const int&, const int&);
+```
+
+<p>В некоторых случаях у нас нет контекста вывода, а поэтому мы можем указать наобходимое и положиться на вывод остального:</p>
+
+```c++
+template<typename DstT, typename SrcT>
+DstT implicit_cast(SrcT const & x) {
+    return x;
+}
+
+double value = implicit_cast(-1); // <- ошибка
+double value = implicit_cast<double, int>(-1); // <- ok
+double value = implicit_cast<double>(-1); // <- ok
+```
+
+<p>Допустим у нас есть параметр по умолчанию. Тогда, нам нужно будет указать его тип:</p>
+
+```c++
+template<typename T> void foo(T x = 1.0);
+
+foo(1); // <- ok
+foo<int>(); // <- ok
+foo(); // <- ошибка
+```
+
+<p>Однако, мы можем это легко исправить:</p>
+
+```c++
+template<typename T = double> void foo(T x = 1.0);
+
+foo(1); // <- ok
+foo<int>(); // <- ok
+foo(); // <- ok
+```

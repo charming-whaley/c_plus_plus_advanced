@@ -272,3 +272,33 @@ bool operator==(const basic_string<CharT, Traits, Alloc>& lhs, const CharT* rhs)
 <li>Лучший из <b>жинеспособных кандидатов</b> выбирается на основании цепочек неявных преобразований для каждого параметра</li>
 <li>Если лучший кандидат существует и является единственным, то перегрузка разрешена успешно, иначе ill-formed</li>
 </ol>
+
+<p>Также стоит учитывать, что поиск Кёнига в пространствах имён не сработает для шаблонных функций:</p>
+
+```c++
+namespace N {
+    struct A;
+    template<typename T> int f(A*);
+};
+
+int g(N::A *a) {
+    int i = f<int>(a); // <- ошибка, < здесь оператор меньше 
+    return i;
+}
+```
+
+<p>Вот как можно это исправить:</p>
+
+```c++
+namespace N {
+    struct A;
+    template<typename T> int f(A*);
+};
+
+template<typename T> void f(int); // <- можно добавить любой параметр
+
+int g(N::A *a) {
+    int i = f<int>(a); // <- ok 
+    return i;
+}
+```

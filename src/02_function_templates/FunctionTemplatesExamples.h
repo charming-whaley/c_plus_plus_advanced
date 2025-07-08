@@ -28,12 +28,7 @@ constexpr T abs(T value) noexcept { // <- реализация кастомно�
 }
 
 template<typename T>
-concept signed_number = std::signed_integral<T> || std::floating_point<T>; // <- концепт для обобщения T в absolute (работает только с C++20+)
-
-template<signed_number T>
-constexpr auto absoluteValue(T value) noexcept { // <- общий кастомный abs
-    return abs<T>(value);
-}
+concept arithmetic_signed = std::signed_integral<T> || std::floating_point<T>; // <- концепт для обобщения T в absolute (работает только с C++20+)
 
 // Кастомная реализация функции gcd(_, _). Сначала тело такой функции
 
@@ -43,7 +38,7 @@ constexpr T gcdBody(const T& firstValue, const T& secondValue) {
         throw std::invalid_argument("Fatal error: division modulo 0 is not accepted");
     T quotient = firstValue % secondValue;
     if (quotient < 0)
-        quotient += absoluteValue(secondValue);
+        quotient += abs<T>(secondValue);
     return quotient;
 }
 
@@ -53,11 +48,11 @@ constexpr T gcdBody(const T& firstValue, const T& secondValue) {
         throw std::invalid_argument("Fatal error: division modulo 0 is not accepted");
     T quotient = firstValue % secondValue;
     if (quotient < 0)
-        quotient += absoluteValue(secondValue);
+        quotient += abs<T>(secondValue);
     return quotient;
 }
 
-template<signed_number T>
+template<arithmetic_signed T>
 constexpr auto gcd(const T& firstValue, const T& secondValue) {
     const auto quotient = gcdBody<T>(firstValue, secondValue);
     return quotient == 0 ? secondValue : gcd<T>(secondValue, quotient);

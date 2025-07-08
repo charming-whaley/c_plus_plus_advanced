@@ -229,3 +229,46 @@ foo(1); // <- ok
 foo<int>(); // <- ok
 foo(); // <- ok
 ```
+
+## 2.6 Перегрузка
+
+<p>На <u>Лекции 1. Строки</u> была поставлена задача написать перегрузку оператора ==. Вот один из вариантов такой перегрузки:</p>
+
+```c++
+template<typename CharT, typename Traits, typename Alloc>
+bool operator==(const basic_string<CharT, Traits, Alloc>& lhs, 
+                const basic_string<CharT, Traits, Alloc>& rhs) {
+    return lhs.compare(rhs) == 0;
+}
+```
+
+<p>Но у этого есть один очень серьезный недостаток: допустим, мы хотим справнить ("Hello" == str). В такое случае мы создаем лишнюю копию. Решением этой проблемы будет банальная перегрузка оператора ==:</p>
+
+```c++
+// Ниже приведен вариант такой перегрузки в стандартной библиотеке C++
+
+template<typename CharT, typename Traits, typename Alloc>
+bool operator==(const basic_string<CharT, Traits, Alloc>& lhs, 
+                const basic_string<CharT, Traits, Alloc>& rhs) {
+    return lhs.compare(rhs) == 0;
+}
+
+template<typename CharT, typename Traits, typename Alloc>
+bool operator==(const CharT* lhs, const basic_string<CharT, Traits, Alloc>& rhs) {
+    return rhs.compare(lhs) == 0;
+}
+
+template<typename CharT, typename Traits, typename Alloc>
+bool operator==(const basic_string<CharT, Traits, Alloc>& lhs, const CharT* rhs) {
+    return lhs.compare(rhs) == 0;
+}
+```
+
+<p>Вот общие правила перегрузки в C++:</p>
+<ol>
+<li>Выбирается множество перегруженных имён</li>
+<li>Выбирается множество кандидатов</li>
+<li>Из множества кандидатов выбираются <b>жинеспособные кандидаты</b></li>
+<li>Лучший из <b>жинеспособных кандидатов</b> выбирается на основании цепочек неявных преобразований для каждого параметра</li>
+<li>Если лучший кандидат существует и является единственным, то перегрузка разрешена успешно, иначе ill-formed</li>
+</ol>

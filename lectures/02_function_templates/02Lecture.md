@@ -164,3 +164,24 @@ template <typename T> void foo(T*);
 template<> void foo<char>(char*) = delete;
 template<> void foo<void>(void*) = delete;
 ```
+
+## 2.4 Non-type параметры
+
+<p>Non-type параметры - это структурные типы (т.е. скалярные типы, lvalue-ссылки и структуры, у которых все поля и базовые классы <b>public</b> и не <b>mutable</b></p>
+
+```c++
+struct Pair { int x, y; }
+
+struct MoreComplex : public Pair {
+    int arr[3]{ 1, 2, 3 };
+    int z = 1;
+}
+
+template<int N, int* PN, int& RN, MoreComplex M> int buz() {
+    return N + *PN + RN + M.z + M.arr[0];
+}
+```
+
+## 2.5 Вывод типов
+
+

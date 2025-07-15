@@ -69,6 +69,7 @@ extern void clear(char* buf);
 int main(int argc, const char* argv[]) {
     std::cout << "Requesting to clean " << D<void>::max << std::endl;
     clear(buffer);
+    return 0;
 }
 ```
 
@@ -177,6 +178,7 @@ int main(int argc, const char* argv[]) {
     
     int* firstPointer = &firstValue;
     std::cout << f(x) << std::endl; // <- а вот тут уже используется специализация FImpl<T*>
+    return 0;
 }
 ```
 
@@ -201,5 +203,95 @@ si.bar();
 
 <p>Специализация может не иметь ничего общего с полной версией.</p>
 
-## 3.5 Шаблоны членов
-## 3.6 Параметризация методов и переходники
+## 3.5 Параметризация методов и переходники
+
+ <p>Рассмотрим следующую задачу:</p>
+
+```c++
+#include <iostream>
+
+template<typename T, typename U>
+struct A {
+    void func();
+};
+
+int main(int argc, const char* argv[]) {
+    A<int, double> a;
+    A<float, double> b;
+    a.func(); // <- только для int
+    b.func(); // <- для всего остального
+    return 0;
+}
+```
+
+<p>Необходимо, чтобы метод был параметризован первым аргументом шаблона. Вот один из вариантов решения такой задачи:</p>
+
+```c++
+#include <iostream>
+
+template<typename T, typename U>
+struct A {
+    void func() {
+        T dummy;
+        some_func(dummy); // <- подбирается под тип
+    }
+private:
+    // Общий вид функции
+    template<typename V>
+    void some_func(V) {
+        std::cout << "For all" << std::endl;
+    }
+    
+    // Специализация для типа int
+    void some_func(int) {
+        std::cout << "Only for int type" << std::endl; 
+    }
+};
+
+int main(int argc, const char* argv[]) {
+    A<int, double> a;
+    A<float, double> b;
+    
+    a.func(); // <- работает только для int
+    b.func(); // <- работает для всех
+    return 0;
+}
+```
+
+<p>Но у такого решения есть минус: <b>T dummy</b> - это некоторый объект, размер которого не определен на стеке. Однако, мы можем исправить эту проблему достаточно просто - добавить так называемый <b>переходник типов</b>:</p>
+
+```c++
+// Typ2Type - это переходник типов, который занимает 1 байт на стеке
+template<typename T>
+struct Type2Type {
+    typedef T OriginalType;
+};
+
+template<typename T, typename U>
+struct A {
+    void func() {
+        T dummy;
+        some_func(Type2Type<T>()); // <- через Type2Type
+    }
+private:
+    // Общий вид функции
+    template<typename V>
+    void some_func(V) {
+        std::cout << "For all" << std::endl;
+    }
+    
+    // Специализация для типа int
+    void some_func(Type2Type<int>) {
+        std::cout << "Only for int type" << std::endl; 
+    }
+};
+
+int main(int argc, const char* argv[]) {
+    A<int, double> a;
+    A<float, double> b;
+    
+    a.func(); // <- работает только для int
+    b.func(); // <- работает для всех
+    return 0;
+}
+```

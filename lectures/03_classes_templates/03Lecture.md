@@ -44,11 +44,12 @@ template<typename T>
 struct fwnode /* PoD */ {
     T data_;
     fwnode *next_;
-}
+};
 
-template<typename T> class Stack {
+template<typename T> 
+class Stack {
     fwnode<T> *top_;
-}
+};
 ```
 
 <p>Таким образом, например, мы можем использовать имя нашего объекта (допустим структуры) внутри тела структуры.</p>
@@ -73,9 +74,62 @@ int main(int argc, const char* argv[]) {
 
 <p>Данный код является корректным, однако опасным. Все дело в том, что тип <b>void</b> в данном случае не совсем уместен, так как <b>void</b> - неполный тип.</p>
 
-
-
 ## 3.3 Частичная специализация
+
+<p>Рассмотрим следующий класс <b>Stack</b>:</p>
+
+```c++
+template<typename T>
+struct fwnode /* PoD */ {
+    T data_;
+    fwnode *next_;
+};
+
+template<typename T>
+class Stack {
+    fwnode<T> *top_;
+};
+```
+
+<p>Для удобства тут было бы проще хранить массив указателей:</p>
+
+```c++
+// Опустим стурктуру fwnode
+
+template<typename T>
+class Stack<T*> {
+    T** content_;
+};
+```
+
+<p>Заметим, что такое упрощение имен работает в частичных специализациях.</p>
+
+```c++
+template<typename T>
+class A {
+    A* a1; // <- здесь A означает A<T>
+};
+
+template<typename T>
+class A<T*> {
+    A* a2; // <- здесь A означает A<T*>
+};
+```
+
+<p>Для практики рассмотрим следующие примеры частичной специализации:</p>
+
+```c++
+template<typename T, typename U> class Foo {  };            // Пусть это 1
+template<typename T> class Foo<T, T> {  };                  // Пусть это 2
+template<typename T> class Foo<T, int> {  };                // Пусть это 3
+template<typename T, typename U> class Foo<T*, U*> {  };    // Пусть это 4
+
+Foo<int, float> mif;        // <- это будет 1
+Foo<float, float> mif;      // <- это будет 2
+Foo<float, int> mif;        // <- это будет 3
+Foo<int*, float*> mif;      // <- это будет 4
+```
+
 ## 3.4 Трюк Саттера
 ## 3.5 Шаблоны членов
 ## 3.6 Параметризация методов и переходники

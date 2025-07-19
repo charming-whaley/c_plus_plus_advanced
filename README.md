@@ -16,13 +16,19 @@
 
 ```bash
 lectures/
-├─ 01_strings/
-├─ 02_function_templates/
-├─ 03_classes_templates/
-└─ ...
+├── 01_strings/
+│   └── 01Lecture.md
+├── 02_function_templates/
+│   └── 02Lecture.md
+├── 03_classes_templates/
+│   └── 03Lecture.md
+└── ...
 src/
-├─ 01_strings/
-├─ 02_function_templates/
-├─ 03_classes_templates/
-└─ ...
+├── 01_strings/
+│   └── StringClass.h
+├── 02_function_templates/
+│   └── FunctionTemplatesExamples.h
+├── 03_classes_templates/
+│   └── ClassTemplatesExamples.h
+└── ...
 ```

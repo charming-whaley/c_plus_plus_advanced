@@ -1,0 +1,5 @@
+[book]
+authors = ["Katkov Fedor"]
+language = "en"
+src = "src"
+title = "Продвинутое программирование на языке C++"
